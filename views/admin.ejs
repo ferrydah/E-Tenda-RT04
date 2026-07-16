@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Admin - SIPERAT 04</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Panel Control SIPERAT 04</h1>
+        <p class="text-gray-600">Selamat datang, <strong><%= user.nama %></strong> (<%= user.role %>)</p>
+      </div>
+      <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Keluar</a>
+    </div>
+
+    <!-- Monitoring Stok -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Stok Inventaris Real-Time</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <% peralatan.forEach(alat => { %>
+          <div class="border p-4 rounded-lg bg-gray-50">
+            <h3 class="font-bold text-lg text-gray-800"><%= alat.nama %></h3>
+            <p class="text-sm text-gray-600">Sewa: Rp <%= alat.harga_sewa_per_hari.toLocaleString() %>/hari</p>
+            <div class="mt-2 text-sm flex justify-between">
+              <span>Stok Tersedia: <strong class="text-green-600"><%= alat.stok_tersedia %></strong></span>
+              <span>Total: <%= alat.stok_total %></span>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Daftar Pengajuan Sewa & Approval -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Daftar Pengajuan Penyewaan</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-3">Nama Warga</th>
+              <th class="p-3">Alat</th>
+              <th class="p-3">Qty</th>
+              <th class="p-3">Tgl Sewa</th>
+              <th class="p-3">Total Biaya</th>
+              <th class="p-3">Status</th>
+              <th class="p-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sewaList.forEach(sewa => { %>
+              <tr class="border-b">
+                <td class="p-3 font-semibold"><%= sewa.nama_lengkap %></td>
+                <td class="p-3"><%= sewa.nama_alat %></td>
+                <td class="p-3"><%= sewa.jumlah %> pcs</td>
+                <td class="p-3"><%= sewa.tgl_mulai %> s/d <%= sewa.tgl_selesai %></td>
+                <td class="p-3 font-semibold">Rp <%= sewa.total_harga.toLocaleString() %></td>
+                <td class="p-3">
+                  <span class="px-2 py-1 rounded text-xs font-bold 
+                    <%= sewa.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : '' %>
+                    <%= sewa.status === 'disetujui' ? 'bg-green-200 text-green-800' : '' %>
+                    <%= sewa.status === 'ditolak' ? 'bg-red-200 text-red-800' : '' %>">
+                    <%= sewa.status.toUpperCase() %>
+                  </span>
+                </td>
+                <td class="p-3 text-center">
+                  <% if (sewa.status === 'pending') { %>
+                    <form action="/approval/<%= sewa.id %>" method="POST" class="inline-block gap-2">
+                      <button type="submit" name="action" value="approve" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 mr-1">Setujui</button>
+                      <button type="submit" name="action" value="reject" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">Tolak</button>
+                    </form>
+                  <% } else if (sewa.status === 'disetujui') { %>
+                    <a href="/struk/<%= sewa.id %>" target="_blank" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">Cetak Struk</a>
+                  <% } else { %>
+                    <span class="text-gray-400">-</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
